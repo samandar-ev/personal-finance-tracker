@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h2 Transaction List
+  if budgetExceeded
+    p(style='color: red') Warning: You have exceeded your monthly budget of $#{monthlyBudget}. Total expenses: $#{currentMonthExpenses}.
+  a(href='/transactions/new') Add New Transaction
+  table
+    thead
+      tr
+        th ID
+        th Type
+        th Amount
+        th Category
+        th Date
+        th Description
+        th Actions
+    tbody
+      each transaction in transactions
+        tr
+          td= transaction.id
+          td= transaction.type
+          td= transaction.amount
+          td= transaction.category
+          td= transaction.date
+          td= transaction.description
+          td
+            a(href=`/transactions/edit/${transaction.id}`) Edit
+            form(method='post', action=`/transactions/delete/${transaction.id}`, style='display:inline')
+              button(type='submit') Delete

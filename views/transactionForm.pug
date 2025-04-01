@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  if transaction
+    h2 Edit Transaction
+  else
+    h2 New Transaction
+  form(method='post', action=(transaction ? `/transactions/edit/${transaction.id}` : '/transactions/new'))
+    label(for='type') Type:
+    select(name='type', id='type')
+      option(value='income', selected=transaction && transaction.type === 'income') Income
+      option(value='expense', selected=transaction && transaction.type === 'expense') Expense
+
+    label(for='amount') Amount:
+    input(type='number', step='0.01', name='amount', id='amount', value=(transaction ? transaction.amount : ''))
+
+    label(for='category') Category:
+    input(type='text', name='category', id='category', value=(transaction ? transaction.category : ''))
+
+    label(for='date') Date:
+    input(type='date', name='date', id='date', value=(transaction ? transaction.date : ''))
+
+    label(for='description') Description:
+    textarea(name='description', id='description')= transaction ? transaction.description : ''
+
+    button(type='submit') Submit

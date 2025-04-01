@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title= title || 'Personal Finance Tracker'
+    link(rel='stylesheet', href='/styles/style.css')
+  body
+    header
+      h1 Personal Finance Tracker
+      nav
+        a(href='/') Home
+        a(href='/transactions') Transactions
+    main
+      block content
+    footer
+      p © 2025 Your Name
+script(src='https://cdn.jsdelivr.net/npm/chart.js')

@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h2 Financial Overview
+  canvas#myChart(width='400', height='200')
+  script.
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Income', 'Expenses'],
+            datasets: [{
+                data: [60, 40], // Replace with dynamic data from your backend if available
+                backgroundColor: ['#36A2EB', '#FF6384']
+            }]
+        }
+    });
