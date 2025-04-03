@@ -1,21 +1,41 @@
 extends layout
 
 block content
-  if transaction
+  if errors
+    script.
+      (function(){
+        var errors = !{JSON.stringify(errors)};
+        var errorMessages = errors.map(function(e){ return e.msg; }).join("\n");
+        alert(errorMessages);
+      })();
+      
+  if transaction && transaction.id
     h2 Edit Transaction
   else
     h2 New Transaction
-  form(method='post', action=(transaction ? `/transactions/edit/${transaction.id}` : '/transactions/new'))
-    label(for='type') Type:
-    select(name='type', id='type')
+
+  form(method='post', action=(transaction && transaction.id ? `/transactions/edit/${transaction.id}` : '/transactions/new'))
+    label(for='type') Transaction Type:
+    select(name='type', id='type', onchange='updateCategoryOptions()')
       option(value='income', selected=transaction && transaction.type === 'income') Income
       option(value='expense', selected=transaction && transaction.type === 'expense') Expense
 
+    label(for='category') Category:
+    select(name='category', id='category')
+      if transaction && transaction.category
+        option(value=transaction.category, selected) #{transaction.category}
+      else
+        option(value='') Select a category
+
+    label(for='paymentMethod') Payment Method:
+    select(name='paymentMethod', id='paymentMethod')
+      option(value='cash', selected=transaction && transaction.paymentMethod === 'cash') Cash
+      option(value='card', selected=transaction && transaction.paymentMethod === 'card') Card
+      option(value='online', selected=transaction && transaction.paymentMethod === 'online') Online Payment
+      option(value='other', selected=transaction && transaction.paymentMethod === 'other') Other
+
     label(for='amount') Amount:
     input(type='number', step='0.01', name='amount', id='amount', value=(transaction ? transaction.amount : ''))
-
-    label(for='category') Category:
-    input(type='text', name='category', id='category', value=(transaction ? transaction.category : ''))
 
     label(for='date') Date:
     input(type='date', name='date', id='date', value=(transaction ? transaction.date : ''))
@@ -24,3 +44,39 @@ block content
     textarea(name='description', id='description')= transaction ? transaction.description : ''
 
     button(type='submit') Submit
+
+  script.
+    function updateCategoryOptions() {
+      var typeSelect = document.getElementById('type');
+      var categorySelect = document.getElementById('category');
+      var selectedType = typeSelect.value;
+      // Clear current options
+      categorySelect.innerHTML = '';
+      
+      // Add default option
+      var defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.text = 'Select a category';
+      categorySelect.appendChild(defaultOption);
+      
+      var categories = [];
+      if (selectedType === 'income') {
+        categories = ['Salary', 'Investments', 'Gifts', 'Other'];
+      } else if (selectedType === 'expense') {
+        categories = ['Groceries', 'Rent', 'Utilities', 'Entertainment', 'Travel', 'Healthcare', 'Other'];
+      }
+      //Populate new options
+      categories.forEach(function(category) {
+        var option = document.createElement('option');
+        option.value = category;
+        option.text = category;
+        categorySelect.appendChild(option);
+      });
+    }
+    //Initialize category options when the page loads if no preselected category exists.
+    document.addEventListener('DOMContentLoaded', function() {
+      var categorySelect = document.getElementById('category');
+      if (!categorySelect.value || categorySelect.value === 'Select a category') {
+        updateCategoryOptions();
+      }
+    });

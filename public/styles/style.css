@@ -1,0 +1,254 @@
+Base Styles
+------------------------------ */
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #ECF0F1;
+  color: #2C3E50;      
+}
+
+/* Header & Footer */
+header, footer {
+  color: #ECF0F1; 
+}
+
+/* ------------------------------
+   Navigation
+------------------------------ */
+.navbar {
+  background: #2C3E50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+}
+
+.navbar .brand h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-links a {
+  color: #ECF0F1;
+  margin-left: 1rem;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: #18BC9C;
+  transition: background 0.3s ease;
+}
+
+.nav-links a:hover {
+  background: #1ABC9C;
+}
+
+/*Main Container*/
+main {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/*Hero Section*/
+.hero {
+  display: flex;
+  flex-wrap: wrap; /* so it stacks on small screens */
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  border-bottom: 1px solid #bdc3c7;
+}
+
+.hero-img {
+  flex: 1 1 400px;
+  max-height: 400px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-content {
+  flex: 1 1 400px;
+}
+
+.hero-content h2 {
+  margin-top: 0;
+  font-size: 2rem;
+  color: #2C3E50;
+  margin-bottom: 1rem;
+}
+
+.hero-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/*Features Section*/
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.feature {
+  background: #fff;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.feature-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #2C3E50;
+  width: 100%;
+  transition: background-color 0.2s ease;
+  padding: 1rem;
+}
+
+.feature-link:hover {
+  background-color: #f7f7f7;
+}
+
+.feature-img {
+  flex: 0 0 120px;
+  margin-right: 1rem;
+}
+
+.feature-img img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.feature-text {
+  flex: 1;
+}
+
+.feature-text h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.feature-text p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/*Transaction Form Grid Layout*/
+form {
+  display: grid;
+  grid-template-columns: max-content 1fr;  
+  gap: 1rem 1.5rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+form label {
+  text-align: right;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form select,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+form textarea {
+  resize: vertical;
+}
+
+/*Position the submit button on its own row, aligned to the left in the second column */
+form button[type="submit"] {
+  grid-column: 2 / 3;
+  justify-self: start;
+  margin-top: 1rem;
+}
+
+/*Buttons*/
+.button,
+button.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 80px;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 1;
+  background: #18BC9C;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.button:hover,
+button.button:hover {
+  background: #1ABC9C;
+}
+
+/*Tables*/
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table, th, td {
+  border: 1px solid #bdc3c7;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+.inline-form {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.budget-warning {
+  color: #E74C3C; /* Red for warnings */
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+footer {
+  background: #2C3E50;
+  color: #ECF0F1;
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 1rem;
+  border-radius: 0 0 6px 6px;
+}

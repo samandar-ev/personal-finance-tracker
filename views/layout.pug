@@ -1,16 +1,19 @@
 doctype html
 html
   head
-    title= title || 'Personal Finance Tracker'
+    title= title || 'FinAssist'
     link(rel='stylesheet', href='/styles/style.css')
   body
-    header
-      h1 Personal Finance Tracker
-      nav
+    header.navbar
+      .brand
+        h1 FinAssist
+      nav.nav-links
         a(href='/') Home
         a(href='/transactions') Transactions
+        a(href='/report') Report
+
     main
       block content
+
     footer
-      p © 2025 Your Name
-script(src='https://cdn.jsdelivr.net/npm/chart.js')
+      p © 2025 Samandar

@@ -16,9 +16,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 const indexRouter = require('./routes/index');
 const transactionsRouter = require('./routes/transactions');
+const reportRouter = require('./routes/report');
 
 app.use('/', indexRouter);
 app.use('/transactions', transactionsRouter);
+app.use('/report', reportRouter);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

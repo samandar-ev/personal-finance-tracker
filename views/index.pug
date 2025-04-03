@@ -1,11 +1,28 @@
-doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/styles/style.css')
-  body
-    header
-      h1= title
-    main
-      p= message
-      a(href='/transactions') View Transactions
+extends layout
+
+block content
+  //Hero Section
+  .hero
+    .hero-img
+      img(src='/images/hero.jpg', alt='Hero Banner')
+    .hero-content
+      h2 Welcome to FinAssist!
+      p FinAssist empowers you to effortlessly track income, manage expenses, and gain valuable insights through interactive reports. Our intuitive platform is designed to help you take control of your financial future, offering real-time analytics and personalized budgeting tools to support smart money decisions.
+      a.button(href='/transactions') Get Started
+
+  //Features Section
+  .features
+    .feature
+      a.feature-link(href='/transactions')
+        .feature-img
+          img(src='/images/feature1.jpg', alt='Track Income & Expenses')
+        .feature-text
+          h3 Track Income & Expenses
+          p Keep an eye on all your transactions in one place.
+    .feature
+      a.feature-link(href='/report')
+        .feature-img
+          img(src='/images/feature2.jpg', alt='Generate Reports')
+        .feature-text
+          h3 Generate Reports
+          p Visualize your financial data with interactive charts and diagrams.
