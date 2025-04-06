@@ -1,9 +1,10 @@
-require('dotenv').config();
 // app.js
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
@@ -11,21 +12,32 @@ const bcrypt = require('bcrypt');
 const connectDB = require('./db');
 connectDB();
 
-const userService = require('./services/userService'); 
+const userService = require('./services/userService');
 
 const app = express();
 
+// Set view engine to Pug
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// Parse form data
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configure session middleware with MongoStore
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'your secret key here',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24
+  }
 }));
 
 app.use(passport.initialize());
@@ -53,7 +65,6 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
 }));
 
 passport.serializeUser((user, done) => {
-
   done(null, user._id || user.id);
 });
 
@@ -66,6 +77,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+// Utility middleware to protect routes
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -73,11 +85,12 @@ function isAuthenticated(req, res, next) {
   res.redirect('/login');
 }
 
+// Mount routes
 const authRouter = require('./routes/auth');
 app.use('/', authRouter);
 
 const indexRouter = require('./routes/index');
-app.use('/', indexRouter);  
+app.use('/', indexRouter);
 
 const transactionsRouter = require('./routes/transactions');
 app.use('/transactions', isAuthenticated, transactionsRouter);
@@ -85,6 +98,7 @@ app.use('/transactions', isAuthenticated, transactionsRouter);
 const reportRouter = require('./routes/report');
 app.use('/report', isAuthenticated, reportRouter);
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
