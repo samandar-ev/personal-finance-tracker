@@ -1,0 +1,107 @@
+extends layout
+
+block content
+  main.card.page-card
+    .card-header
+      if transaction && transaction.id
+        h2 Edit Transaction
+      else
+        h2 New Transaction
+    .card-body
+      if errors
+        script.
+          (function(){
+            var errors = !{JSON.stringify(errors)};
+            var errorMessages = errors.map(function(e){ return e.msg; }).join("\n");
+            alert(errorMessages);
+          })();
+
+      form(method='post', action=(transaction && transaction.id ? `/transactions/edit/${transaction.id}` : '/transactions/new'))
+        .form-group
+          label(for='type') Transaction Type:
+          select.form-control(name='type', id='type', onchange='updateCategoryOptions()')
+            option(value='Income', selected=transaction && transaction.type === 'Income') Income
+            option(value='Expense', selected=transaction && transaction.type === 'Expense') Expense
+
+        .form-group
+          label(for='category') Category:
+          select.form-control(name='category', id='category')
+            if transaction && transaction.category
+              option(value=transaction.category selected)= transaction.category
+            else
+              option(value='') Select a category
+
+        .form-group
+          label(for='paymentMethod') Payment Method:
+          select.form-control(name='paymentMethod', id='paymentMethod')
+            option(value='Cash', selected=transaction && transaction.paymentMethod === 'Cash') Cash
+            option(value='Card', selected=transaction && transaction.paymentMethod === 'Card') Card
+            option(value='Online', selected=transaction && transaction.paymentMethod === 'Online') Online Payment
+            option(value='Other', selected=transaction && transaction.paymentMethod === 'Other') Other
+
+        .form-group
+          label(for='amount') Amount:
+          input.form-control(type='number', step='0.01', name='amount', id='amount', value=(transaction ? transaction.amount : ''))
+
+        // We store the transaction's currency
+        .form-group
+          label(for='currency') Currency:
+          select.form-control(name='currency', id='currency')
+            option(value='USD', selected=transaction && transaction.currency === 'USD') USD
+            option(value='EUR', selected=transaction && transaction.currency === 'EUR') EUR
+            option(value='GBP', selected=transaction && transaction.currency === 'GBP') GBP
+            option(value='UZS', selected=transaction && transaction.currency === 'UZS') UZS
+            option(value='JPY', selected=transaction && transaction.currency === 'JPY') JPY
+
+        .form-group
+          label(for='date') Date:
+          input.form-control(type='date', name='date', id='date', value=(transaction ? transaction.date : ''))
+
+        .form-group
+          label(for='description') Description:
+          textarea.form-control(name='description', id='description')= transaction ? transaction.description : ''
+
+        button.button(type='submit') Submit
+
+    script.
+      function updateCategoryOptions() {
+        var typeSelect = document.getElementById('type');
+        var categorySelect = document.getElementById('category');
+        var selectedType = typeSelect.value; 
+        categorySelect.innerHTML = '';
+
+        var defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.text = 'Select a category';
+        categorySelect.appendChild(defaultOption);
+
+        var categories = [];
+        if (selectedType === 'Income') {
+          categories = ['Salary', 'Investments', 'Gifts', 'Other'];
+        } else {
+          categories = ['Groceries', 'Rent', 'Food', 'Utilities', 'Insurance', 'Debt Pay Off', 'Entertainment', 'Travel', 'Healthcare', 'Other'];
+        }
+
+        categories.forEach(function(cat) {
+          var opt = document.createElement('option');
+          opt.value = cat;
+          opt.text = cat;
+          categorySelect.appendChild(opt);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var categorySelect = document.getElementById('category');
+        if (!categorySelect.value || categorySelect.value === 'Select a category') {
+          updateCategoryOptions();
+        }
+        // Validate numeric input for amount
+        var amountField = document.getElementById('amount');
+        amountField.addEventListener('keypress', function(e) {
+          var char = String.fromCharCode(e.which);
+          if (!/[0-9.]/.test(char)) {
+            alert("Enter a valid number");
+            e.preventDefault();
+          }
+        });
+      });

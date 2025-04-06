@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  main.auth-screen
+    .auth-container
+      .card.auth-card.login
+        .card-header
+          h2 Log In
+          // Remove the subheading line "to start learning"
+        .card-body
+          if message
+            .alert= message
+          form(method='post', action='/login')
+            .form-group
+              label(for='email') Email:
+              input.form-control(type='email', name='email', id='email', placeholder='Enter your email', required)
+            .form-group
+              label(for='password') Password:
+              input.form-control(type='password', name='password', id='password', placeholder='Enter your password', required)
+
+            button(type='submit') Log In →
+        .card-footer
+          p
+            | Don't have an account? 
+            a(href='/signup') Sign Up Now

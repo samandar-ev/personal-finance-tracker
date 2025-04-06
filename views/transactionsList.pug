@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  main.card.page-card
+    .card-header
+      h2 Transactions
+    .card-body
+      .top-row(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;")
+        a.button(href='/transactions/new') Add New Transaction
+        div
+          label(for='display-currency') Show amounts in:
+          select#display-currency(name='display-currency')
+            each curr in currencies
+              option(value=curr, selected=(curr === displayCurrency))= curr
+
+      table
+        thead
+          tr
+            th ID
+            th Type
+            th Amount (#{displayCurrency})
+            th Category
+            th Payment Method
+            th Date
+            th Description
+            th Actions
+        tbody
+          each tx in transactions
+            tr
+              // Display the MongoDB _id (hidden via CSS if desired)
+              td= tx._id
+              td= tx.type
+              td= tx.amountConverted
+              td= tx.category
+              td= tx.paymentMethod
+              td= tx.date
+              td= tx.description
+              td
+                .btn-container
+                  a.button.small.fixed-width(href=`/transactions/edit/${tx._id}`) Edit
+                  form.inline-form(method='post', action=`/transactions/delete/${tx._id}`, style="display:inline;")
+                    button.button.small.fixed-width(type='submit') Delete
+
+      script.
+        document.addEventListener('DOMContentLoaded', function() {
+          var select = document.getElementById('display-currency');
+          select.addEventListener('change', function() {
+            var selected = this.value;
+            window.location = '/transactions?display=' + encodeURIComponent(selected);
+          });
+        });

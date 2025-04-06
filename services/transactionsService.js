@@ -1,40 +1,45 @@
-// services/transactionsService.js
-let transactions = [];
-let nextId = 1;
+const Transaction = require('../models/Transaction');
 
-exports.getAllTransactions = () => transactions;
+module.exports = {
+  async getAll() {
+    return await Transaction.find({}).exec();
+  },
 
-exports.getTransactionById = (id) => 
-  transactions.find(tx => tx.id === parseInt(id));
+  async getById(id) {
+    return await Transaction.findById(id).exec();
+  },
 
-exports.addTransaction = (data) => {
-    const newTransaction = {
-      id: nextId++,
-      type: data.type,
-      amount: parseFloat(data.amount),
+  async addTransaction(data) {
+    const formattedType = data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase();
+
+    const newTx = new Transaction({
+      type: formattedType,
       category: data.category,
       paymentMethod: data.paymentMethod,
-      date: data.date,
-      description: data.description
-    };
-    transactions.push(newTransaction);
-  };  
+      amount: parseFloat(data.amount) || 0,
+      date: data.date || '',
+      description: data.description || '',
+      currency: data.currency || 'USD'
+    });
+    await newTx.save();
+  },
 
-exports.updateTransaction = (id, data) => {
-  const index = transactions.findIndex(tx => tx.id === parseInt(id));
-  if (index !== -1) {
-    transactions[index] = {
-      id: parseInt(id),
-      type: data.type,
-      amount: parseFloat(data.amount),
-      category: data.category,
-      paymentMethod: data.paymentMethod,
-      date: data.date,
-      description: data.description
-    };
+  async updateTransaction(id, data) {
+    const tx = await Transaction.findById(id).exec();
+    if (!tx) {
+      throw new Error("Transaction not found");
+    }
+    tx.type = data.type.charAt(0).toUpperCase() + data.type.slice(1).toLowerCase();
+    tx.category = data.category;
+    tx.paymentMethod = data.paymentMethod;
+    tx.amount = parseFloat(data.amount) || 0;
+    tx.date = data.date || '';
+    tx.description = data.description || '';
+    tx.currency = data.currency || 'USD';
+    await tx.save();
+  },
+
+  async deleteTransaction(id) {
+    await Transaction.findByIdAndDelete(id).exec();
   }
-};
-
-exports.deleteTransaction = (id) => {
-  transactions = transactions.filter(tx => tx.id !== parseInt(id));
 };

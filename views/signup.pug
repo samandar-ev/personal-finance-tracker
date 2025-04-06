@@ -1,0 +1,37 @@
+extends layout
+
+block content
+  main.auth-screen
+    .auth-container
+      .card.auth-card.signup
+        .card-header
+          h2 Sign Up
+          // Remove "to start learning" subheading
+        .card-body
+          if message
+            .alert= message
+          if errors && errors.length
+            .alert
+              ul
+                each error in errors
+                  li= error.msg
+
+          form(method='post', action='/signup')
+            .form-group
+              label(for='email') Email:
+              input.form-control(type='email', name='email', id='email', placeholder='Enter your email', required)
+
+            .form-group
+              label(for='password') Password:
+              input.form-control(type='password', name='password', id='password', placeholder='Enter your password', required)
+
+            .form-group
+              small.notice
+                | Please note: For security reasons, we cannot restore your password if you lose it. 
+                | Be sure to remember it or write it down in a safe place.
+
+            button(type='submit') Sign Up →
+        .card-footer
+          p
+            | Already have an account?
+            a(href='/login') Log In

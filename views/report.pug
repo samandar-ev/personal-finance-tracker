@@ -1,124 +1,140 @@
 extends layout
 
 block content
-  h2 Financial Report
+  main
+    .page-container
+      .card.page-card
+        .card-body
+          h2 Financial Report
 
-  h3 Income Breakdown
-  .chart-container(style="position: relative; height:400px; width:400px; margin:auto;")
-    canvas#incomeChart
-  table
-    thead
-      tr
-        th Category
-        th Amount
-        th Percentage
-    tbody
+          // A simple <select> for display currency, no button
+          div(style='margin-bottom:1rem; text-align:center;')
+            label(for='display-currency') Show amounts in:
+            select#display-currency(name='display-currency')
+              each curr in currencies
+                option(value=curr, selected=(curr === displayCurrency))= curr
 
-  h3 Expense Breakdown
-  .chart-container(style="position: relative; height:400px; width:400px; margin:auto;")
-    canvas#expenseChart
-  table
-    thead
-      tr
-        th Category
-        th Amount
-        th Percentage
-    tbody
+          // Income Breakdown
+          h3 Income Breakdown (#{displayCurrency})
+          .chart-container(style="position: relative; height:400px; width:400px; margin:auto;")
+            canvas#incomeChart
+          table
+            thead
+              tr
+                th Category
+                th Amount (#{displayCurrency})
+                th Percentage
+            tbody
 
-  // Include Chart.js via CDN
-  script(src="https://cdn.jsdelivr.net/npm/chart.js")
-  
-  script.
-    // Parse data passed from the route
-    var incomeData = !{incomeData};
-    var expenseData = !{expenseData};
+          // Expense Breakdown
+          h3 Expense Breakdown (#{displayCurrency})
+          .chart-container(style="position: relative; height:400px; width:400px; margin:auto;")
+            canvas#expenseChart
+          table
+            thead
+              tr
+                th Category
+                th Amount (#{displayCurrency})
+                th Percentage (Out of overall expenses)
+            tbody
 
-    // Define a palette of colors for categories
-    var colors = ['#3498DB', '#1ABC9C', '#9B59B6', '#E67E22', '#E74C3C', '#F1C40F', '#2ECC71', '#34495E'];
+          // chart.js + aggregator logic is the same as before
+          script(src="https://cdn.jsdelivr.net/npm/chart.js")
 
-    // Assign colors based on index
-    var incomeColors = incomeData.map((_, index) => colors[index % colors.length]);
-    var expenseColors = expenseData.map((_, index) => colors[index % colors.length]);
+          script.
+            var incomeData = !{incomeData};
+            var expenseData = !{expenseData};
 
-    // Create Income Chart
-    var ctxIncome = document.getElementById('incomeChart').getContext('2d');
-    new Chart(ctxIncome, {
-      type: 'pie',
-      data: {
-        labels: incomeData.map(item => item.category),
-        datasets: [{
-          data: incomeData.map(item => item.amount),
-          backgroundColor: incomeColors
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                var idx = context.dataIndex;
-                var label = context.label || '';
-                var amount = incomeData[idx].amount;
-                var percentage = incomeData[idx].percentage;
-                return label + ': $' + amount.toFixed(2) + ' (' + percentage + '%)';
+            var colors = ['#3498DB', '#1ABC9C', '#9B59B6', '#E67E22', '#E74C3C', '#F1C40F', '#2ECC71', '#34495E'];
+            var incomeColors = incomeData.map((_, i) => colors[i % colors.length]);
+            var expenseColors = expenseData.map((_, i) => colors[i % colors.length]);
+
+            var ctxIncome = document.getElementById('incomeChart').getContext('2d');
+            new Chart(ctxIncome, {
+              type: 'pie',
+              data: {
+                labels: incomeData.map(item => item.category),
+                datasets: [{
+                  data: incomeData.map(item => item.amount),
+                  backgroundColor: incomeColors
+                }]
+              },
+              options: {
+                plugins: {
+                  legend: { position: 'bottom' },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        var idx = context.dataIndex;
+                        var label = context.label || '';
+                        var amount = incomeData[idx].amount;
+                        var percentage = incomeData[idx].percentage;
+                        return label + ': ' + amount.toFixed(2) + ' ( ' + percentage + '% )';
+                      }
+                    }
+                  }
+                }
               }
-            }
-          }
-        }
-      }
-    });
+            });
 
-    // Create Expense Chart
-    var ctxExpense = document.getElementById('expenseChart').getContext('2d');
-    new Chart(ctxExpense, {
-      type: 'pie',
-      data: {
-        labels: expenseData.map(item => item.category),
-        datasets: [{
-          data: expenseData.map(item => item.amount),
-          backgroundColor: expenseColors
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                var idx = context.dataIndex;
-                var label = context.label || '';
-                var amount = expenseData[idx].amount;
-                var percentage = expenseData[idx].percentage;
-                return label + ': $' + amount.toFixed(2) + ' (' + percentage + '%)';
+            var ctxExpense = document.getElementById('expenseChart').getContext('2d');
+            new Chart(ctxExpense, {
+              type: 'pie',
+              data: {
+                labels: expenseData.map(item => item.category),
+                datasets: [{
+                  data: expenseData.map(item => item.amount),
+                  backgroundColor: expenseColors
+                }]
+              },
+              options: {
+                plugins: {
+                  legend: { position: 'bottom' },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        var idx = context.dataIndex;
+                        var label = context.label || '';
+                        var amount = expenseData[idx].amount;
+                        var percentage = expenseData[idx].percentage;
+                        return label + ': ' + amount.toFixed(2) + ' ( ' + percentage + '% )';
+                      }
+                    }
+                  }
+                }
               }
-            }
-          }
-        }
-      }
-    });
+            });
 
-    // Function to fill a table with breakdown data
-    function fillTable(tableSelector, data, colors) {
-      var tbody = document.querySelector(tableSelector + ' tbody');
-      data.forEach(function(item, index) {
-        var tr = document.createElement('tr');
-        // Category with colored dot
-        var tdCategory = document.createElement('td');
-        tdCategory.innerHTML = '<span style="display:inline-block;width:12px;height:12px;background:' + colors[index] + ';margin-right:5px;border-radius:50%;"></span>' + item.category;
-        tr.appendChild(tdCategory);
-        // Amount
-        var tdAmount = document.createElement('td');
-        tdAmount.textContent = '$' + item.amount.toFixed(2);
-        tr.appendChild(tdAmount);
-        // Percentage
-        var tdPercent = document.createElement('td');
-        tdPercent.textContent = item.percentage + '%';
-        tr.appendChild(tdPercent);
-        tbody.appendChild(tr);
-      });
-    }
-    
-    // Fill the tables (assumes the first table is income, second is expense)
-    fillTable('table:nth-of-type(1)', incomeData, incomeColors);
-    fillTable('table:nth-of-type(2)', expenseData, expenseColors);
+            function fillTable(tableSelector, data, colors) {
+              var tbody = document.querySelector(tableSelector + ' tbody');
+              data.forEach(function(item, index) {
+                var tr = document.createElement('tr');
+
+                var tdCategory = document.createElement('td');
+                tdCategory.innerHTML = '<span style="display:inline-block;width:12px;height:12px;background:' 
+                  + colors[index] + ';margin-right:5px;border-radius:50%;"></span>' + item.category;
+                tr.appendChild(tdCategory);
+
+                var tdAmount = document.createElement('td');
+                tdAmount.textContent = item.amount.toFixed(2);
+                tr.appendChild(tdAmount);
+
+                var tdPercent = document.createElement('td');
+                tdPercent.textContent = item.percentage + '%';
+                tr.appendChild(tdPercent);
+
+                tbody.appendChild(tr);
+              });
+            }
+            fillTable('table:nth-of-type(1)', incomeData, incomeColors);
+            fillTable('table:nth-of-type(2)', expenseData, expenseColors);
+
+          // Automatically reload on currency change
+          script.
+            document.addEventListener('DOMContentLoaded', function() {
+              var select = document.getElementById('display-currency');
+              select.addEventListener('change', function() {
+                var selected = this.value;
+                window.location = '/report?display=' + encodeURIComponent(selected);
+              });
+            });

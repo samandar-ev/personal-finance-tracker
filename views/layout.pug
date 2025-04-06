@@ -1,16 +1,25 @@
 doctype html
 html
   head
+    // Always ensure meta viewport is among the first tags
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+
     title= title || 'FinAssist'
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap")
     link(rel='stylesheet', href='/styles/style.css')
   body
     header.navbar
       .brand
-        h1 FinAssist
+        a(href='/')
+          h1 FinAssist
       nav.nav-links
         a(href='/') Home
         a(href='/transactions') Transactions
         a(href='/report') Report
+        if user
+          a(href='/logout') Sign Out
+        else
+          a(href='/login') Log In
 
     main
       block content
