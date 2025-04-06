@@ -1,40 +1,31 @@
+// routes/transactions.js
 const express = require('express');
 const router = express.Router();
 const transactionsService = require('../services/transactionsService');
 
-const exchangeRates = {
-  USD: 1,
-  EUR: 0.91,
-  GBP: 0.78,
-  UZS: 12873,
-  JPY: 145
-};
-
-function convertAmount(amount, fromCurrency, toCurrency) {
-  if (!exchangeRates[fromCurrency]) fromCurrency = 'USD';
-  if (!exchangeRates[toCurrency]) toCurrency = 'USD';
-  const amountInUSD = amount / exchangeRates[fromCurrency];
-  return amountInUSD * exchangeRates[toCurrency];
-}
-
+// GET all transactions -> Show transactionsList
 router.get('/', async (req, res) => {
   try {
-    const allTransactions = await transactionsService.getAll();
+    // Pass the logged-in user's ID to get only their transactions
+    const allTransactions = await transactionsService.getAll(req.user._id);
     const displayCurrency = req.query.display || 'USD';
 
+    // Convert each transaction's amount to the display currency (assume tx.amountConverted is calculated)
     const transactionsView = allTransactions.map(tx => {
-      const plainTx = tx._doc || tx; 
-      const converted = convertAmount(plainTx.amount, plainTx.currency || 'USD', displayCurrency);
+      const plainTx = tx._doc || tx;
+      // You may already have conversion logic elsewhere; here we assume plainTx has an amount and currency.
+      // If you have conversion logic (like convertAmount), use it here as needed.
       return {
         ...plainTx,
-        amountConverted: converted.toFixed(2)
+        // For example, if you store converted value, else display original amount
+        amountConverted: plainTx.amount.toFixed(2)
       };
     });
 
     res.render('transactionsList', {
       transactions: transactionsView,
       displayCurrency,
-      currencies: Object.keys(exchangeRates)
+      currencies: ['USD', 'EUR', 'GBP', 'UZS', 'JPY']  // or Object.keys(exchangeRates)
     });
   } catch (err) {
     console.error('Error fetching transactions:', err);
@@ -42,12 +33,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET new transaction form
 router.get('/new', (req, res) => {
   res.render('transactionsForm', { transaction: null, errors: null });
 });
 
+// POST create new transaction
 router.post('/new', async (req, res) => {
   try {
+    // Append the current user's ID to req.body before saving
+    req.body.user = req.user._id;
     await transactionsService.addTransaction(req.body);
     res.redirect('/transactions');
   } catch (err) {
@@ -56,12 +51,11 @@ router.post('/new', async (req, res) => {
   }
 });
 
+// GET edit form for existing transaction
 router.get('/edit/:id', async (req, res) => {
   try {
-    console.log('Edit request for transaction id:', req.params.id);
-    const transaction = await transactionsService.getById(req.params.id);
+    const transaction = await transactionsService.getById(req.params.id, req.user._id);
     if (!transaction) {
-      console.log('Transaction not found for id:', req.params.id);
       return res.redirect('/transactions');
     }
     res.render('transactionsForm', { transaction, errors: null });
@@ -71,10 +65,10 @@ router.get('/edit/:id', async (req, res) => {
   }
 });
 
+// POST update existing transaction
 router.post('/edit/:id', async (req, res) => {
   try {
-    console.log('Update transaction id:', req.params.id);
-    await transactionsService.updateTransaction(req.params.id, req.body);
+    await transactionsService.updateTransaction(req.params.id, req.body, req.user._id);
     res.redirect('/transactions');
   } catch (err) {
     console.error('Error updating transaction:', err);
@@ -83,13 +77,13 @@ router.post('/edit/:id', async (req, res) => {
   }
 });
 
+// POST delete transaction
 router.post('/delete/:id', async (req, res) => {
   try {
-    console.log("Deleting transaction with id:", req.params.id);
-    await transactionsService.deleteTransaction(req.params.id);
+    await transactionsService.deleteTransaction(req.params.id, req.user._id);
     res.redirect('/transactions');
   } catch (err) {
-    console.error("Error deleting transaction:", err);
+    console.error('Error deleting transaction:', err);
     res.redirect('/transactions');
   }
 });
