@@ -15,18 +15,15 @@ connectDB();
 const userService = require('./services/userService');
 
 const app = express();
+app.set('trust proxy', 1);
 
-// Set view engine to Pug
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// Parse form data
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure session middleware with MongoStore
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your secret key here',
   resave: false,
