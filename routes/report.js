@@ -1,3 +1,4 @@
+// routes/report.js
 const express = require('express');
 const router = express.Router();
 const transactionsService = require('../services/transactionsService');
@@ -22,55 +23,52 @@ router.get('/', async (req, res) => {
     const displayCurrency = req.query.display || 'USD';
 
     const transactions = await transactionsService.getAll();
+    console.log("Transactions from DB:", transactions);
 
     const convertedTx = transactions.map(tx => {
       const plainTx = tx._doc || tx;
       const converted = convertAmount(plainTx.amount, plainTx.currency || 'USD', displayCurrency);
       return {
         ...plainTx,
-        amount: converted
+        amountConverted: converted
       };
     });
 
-    const incomeTransactions = convertedTx.filter(tx => tx.type === 'income');
-    const incomeTotal = incomeTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+    const incomeTransactions = convertedTx.filter(tx => tx.type.toLowerCase() === 'income');
+    const incomeTotal = incomeTransactions.reduce((sum, tx) => sum + parseFloat(tx.amountConverted), 0);
     let incomeBreakdown = {};
     incomeTransactions.forEach(tx => {
       if (!incomeBreakdown[tx.category]) {
         incomeBreakdown[tx.category] = 0;
       }
-      incomeBreakdown[tx.category] += tx.amount;
+      incomeBreakdown[tx.category] += parseFloat(tx.amountConverted);
     });
     const incomeData = Object.keys(incomeBreakdown).map(category => ({
       category,
       amount: incomeBreakdown[category],
-      percentage: incomeTotal
-        ? ((incomeBreakdown[category] / incomeTotal) * 100).toFixed(2)
-        : 0
+      percentage: incomeTotal ? ((incomeBreakdown[category] / incomeTotal) * 100).toFixed(2) : 0
     }));
 
-    const expenseTransactions = convertedTx.filter(tx => tx.type === 'expense');
-    const expenseTotal = expenseTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+    const expenseTransactions = convertedTx.filter(tx => tx.type.toLowerCase() === 'expense');
+    const expenseTotal = expenseTransactions.reduce((sum, tx) => sum + parseFloat(tx.amountConverted), 0);
     let expenseBreakdown = {};
     expenseTransactions.forEach(tx => {
       if (!expenseBreakdown[tx.category]) {
         expenseBreakdown[tx.category] = 0;
       }
-      expenseBreakdown[tx.category] += tx.amount;
+      expenseBreakdown[tx.category] += parseFloat(tx.amountConverted);
     });
     const expenseData = Object.keys(expenseBreakdown).map(category => ({
       category,
       amount: expenseBreakdown[category],
-      percentage: expenseTotal
-        ? ((expenseBreakdown[category] / expenseTotal) * 100).toFixed(2)
-        : 0
+      percentage: expenseTotal ? ((expenseBreakdown[category] / expenseTotal) * 100).toFixed(2) : 0
     }));
 
     res.render('report', {
       title: 'Financial Report',
       displayCurrency,
-      incomeTotal,
-      expenseTotal,
+      incomeTotal: incomeTotal.toFixed(2),
+      expenseTotal: expenseTotal.toFixed(2),
       incomeData: JSON.stringify(incomeData),
       expenseData: JSON.stringify(expenseData),
       currencies: Object.keys(exchangeRates)
