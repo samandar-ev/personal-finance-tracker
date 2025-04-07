@@ -1,4 +1,3 @@
-// routes/report.js
 const express = require('express');
 const router = express.Router();
 const transactionsService = require('../services/transactionsService');
@@ -20,17 +19,15 @@ function convertAmount(amount, fromCurrency, toCurrency) {
 
 router.get('/', async (req, res) => {
   try {
+    const transactions = await transactionsService.getAll(req.user._id);
     const displayCurrency = req.query.display || 'USD';
-
-    const transactions = await transactionsService.getAll();
-    console.log("Transactions from DB:", transactions);
 
     const convertedTx = transactions.map(tx => {
       const plainTx = tx._doc || tx;
       const converted = convertAmount(plainTx.amount, plainTx.currency || 'USD', displayCurrency);
       return {
         ...plainTx,
-        amountConverted: converted
+        amountConverted: converted.toFixed(2)
       };
     });
 
@@ -46,7 +43,9 @@ router.get('/', async (req, res) => {
     const incomeData = Object.keys(incomeBreakdown).map(category => ({
       category,
       amount: incomeBreakdown[category],
-      percentage: incomeTotal ? ((incomeBreakdown[category] / incomeTotal) * 100).toFixed(2) : 0
+      percentage: incomeTotal
+        ? ((incomeBreakdown[category] / incomeTotal) * 100).toFixed(2)
+        : 0
     }));
 
     const expenseTransactions = convertedTx.filter(tx => tx.type.toLowerCase() === 'expense');
@@ -61,7 +60,9 @@ router.get('/', async (req, res) => {
     const expenseData = Object.keys(expenseBreakdown).map(category => ({
       category,
       amount: expenseBreakdown[category],
-      percentage: expenseTotal ? ((expenseBreakdown[category] / expenseTotal) * 100).toFixed(2) : 0
+      percentage: expenseTotal
+        ? ((expenseBreakdown[category] / expenseTotal) * 100).toFixed(2)
+        : 0
     }));
 
     res.render('report', {
