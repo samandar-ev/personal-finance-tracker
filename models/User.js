@@ -5,5 +5,4 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true }
 });
 
-
 module.exports = mongoose.model('User', userSchema);
